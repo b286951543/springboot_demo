@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.example.demo.mapper.UserRoleMapper"> <!-- namespace属性指向我们定义的接口类 -->
+
+    <resultMap id="userRoleMap"
+               type="com.example.demo.model.UserRole"> <!-- 配置数据库字段和我们代码中返回的实体对象之间的一一对应关系。id是一个它的一个属性，type是指向的实体类型 -->
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="role_name" property="roleName"/>
+    </resultMap>
+
+    <sql id="selectRole">
+        <![CDATA[ select * from user_role where id < 100 ]]>
+    </sql>
+
+    <select id="getRoles"
+            resultMap="userRoleMap"> <!-- id指向我们定义的接口类中的方法, resultMap结果映射，对应我们定义的<resultMap>，通过id进行对应查找 -->
+        <include refid="selectRole"/>
+    </select>
+
+    <select id="getRole" resultMap="userRoleMap">
+        select * from user_role
+        <!--        <where>-->
+        <!--            <if test="id != null and id != 0">-->
+        <!--                AND id=#{id}-->
+        <!--            </if>-->
+        <!--        </where>-->
+        <trim prefix="WHERE" prefixOverrides="AND"> <!-- 去掉一些多余的东西， 比如 and , () 这种。除了prefix，prefixOverrides这两个属性外，还有suffix属性 -->
+            <if test="id != null and id != 0">
+                id=#{id}
+            </if>
+        </trim>
+    </select>
+
+    <update id="updateRole">
+        update user_role set name = "普通用户123" where id=#{id}
+    </update>
+
+    <insert id="addRole">
+        insert user_role (name) values (#{name})
+    </insert>
+
+    <delete id="deleteRole">
+        delete from user_role where id = #{id}
+    </delete>
+</mapper>
