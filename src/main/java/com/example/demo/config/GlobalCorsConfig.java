@@ -23,6 +23,8 @@ public class GlobalCorsConfig {
         config.addAllowedHeader("*");
         //允许所有请求方法跨域调用 Access-Control-Allow-Methods，具体有POST, GET, OPTIONS, DELETE, PUT
         config.addAllowedMethod("*");
+        // 允许以这种方式实现跨域请求的最长时间, 3600秒之内不需要再发送预请求来验证了，发正式请求就可以了。
+//        config.setMaxAge(3600L);
         // 用于前端获取请求头的 imageVerificationCode 信息
 //        config.addExposedHeader("imageVerificationCode");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
