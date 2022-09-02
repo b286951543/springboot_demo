@@ -4,6 +4,8 @@ import com.example.demo.mapper.UserRoleMapper;
 import com.example.demo.model.CommonPage;
 import com.example.demo.model.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -69,6 +71,36 @@ public class UserController {
             return "fail";
         }
 
+        return "success";
+    }
+
+    // http://localhost:8080/api/user/trans?name=xiaohong
+    @Transactional(rollbackFor = Exception.class)
+    @GetMapping("trans")
+    @ResponseBody
+    public String transUser(@RequestParam String name) throws Exception {
+        userRoleMapper.addRole(name);
+        if(name.equals("xiaohong")) {
+            // 异常需要被抛出，否则不能自动回滚
+            throw new Exception("trans error");
+        }
+
+        userRoleMapper.updateRole(2);
+        return "success";
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @GetMapping("trans2")
+    @ResponseBody
+    public String transUser2(@RequestParam String name) {
+        userRoleMapper.addRole(name);
+        if(name.equals("xiaohong")) {
+            // 手动回滚
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return "fail";
+        }
+
+        userRoleMapper.updateRole(2);
         return "success";
     }
 }

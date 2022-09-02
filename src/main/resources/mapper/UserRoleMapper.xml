@@ -45,3 +45,6 @@
         delete from user_role where id = #{id}
     </delete>
 </mapper>
+
+        select * from user_role where id = 2;
+        update user_role set is_delete = is_delete-1000 where id = 2;

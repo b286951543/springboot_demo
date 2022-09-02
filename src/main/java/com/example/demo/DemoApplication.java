@@ -5,7 +5,10 @@ import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+// 开启事务
+@EnableTransactionManagement
 // 启动时初始化配置 AppConfig 的属性
 @EnableConfigurationProperties({AppConfig.class})
 @SpringBootApplication
