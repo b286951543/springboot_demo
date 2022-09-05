@@ -3,6 +3,7 @@ package com.example.demo.config;
 import cn.hutool.core.codec.Base64;
 import com.example.demo.Shiro.CustomRealm;
 //import com.example.demo.session.ShiroSessionListener;
+import com.example.demo.session.ShiroSessionListener;
 import org.apache.shiro.session.SessionListener;
 import org.apache.shiro.session.mgt.SessionManager;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
@@ -17,6 +18,7 @@ import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.crazycake.shiro.RedisCacheManager;
 import org.crazycake.shiro.RedisManager;
 //import org.crazycake.shiro.RedisSessionDAO;
+import org.crazycake.shiro.RedisSessionDAO;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -86,13 +88,13 @@ public class ShiroConfig {
         securityManager.setRealm(shiroRealm());
 
         // 添加rememberManager
-        securityManager.setRememberMeManager(rememberMeManager());
+//        securityManager.setRememberMeManager(rememberMeManager());
 
         // 添加缓存
-        securityManager.setCacheManager(cacheManager());
+//        securityManager.setCacheManager(cacheManager());
 
         // 注入session manager
-//        securityManager.setSessionManager(sessionManager());
+        securityManager.setSessionManager(sessionManager());
         return securityManager;
     }
 
@@ -171,20 +173,29 @@ public class ShiroConfig {
     }
 
     // session 会话
-//    @Bean
-//    public RedisSessionDAO sessionDAO() {
-//        RedisSessionDAO redisSessionDAO = new RedisSessionDAO();
-//        redisSessionDAO.setRedisManager(redisManager());
-//        return redisSessionDAO;
-//    }
-//
-//    @Bean
-//    public SessionManager sessionManager() {
-//        DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
-//        Collection<SessionListener> listeners = new ArrayList<SessionListener>();
-//        listeners.add(new ShiroSessionListener());
-//        sessionManager.setSessionListeners(listeners);
-//        sessionManager.setSessionDAO(sessionDAO());
-//        return sessionManager;
-//    }
+    @Bean
+    public RedisSessionDAO sessionDAO() {
+        RedisSessionDAO redisSessionDAO = new RedisSessionDAO();
+        redisSessionDAO.setRedisManager(redisManager());
+        return redisSessionDAO;
+    }
+
+    @Bean
+    public SessionManager sessionManager() {
+        DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
+        Collection<SessionListener> listeners = new ArrayList<SessionListener>();
+        listeners.add(new ShiroSessionListener());
+        sessionManager.setSessionListeners(listeners);
+        sessionManager.setSessionDAO(sessionDAO());
+
+        //设置session过期时间
+        sessionManager.setGlobalSessionTimeout(60 * 60 * 1000);
+        //定期验证session
+        sessionManager.setSessionValidationSchedulerEnabled(true);
+        //删除无效session
+        sessionManager.setDeleteInvalidSessions(true);
+        // 去掉shiro登录时url里的JSESSIONID
+        sessionManager.setSessionIdUrlRewritingEnabled(false);
+        return sessionManager;
+    }
 }

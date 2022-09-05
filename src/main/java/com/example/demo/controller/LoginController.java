@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class LoginController {
-    @GetMapping("/login")
-    public String login() {
-        return "login";
-    }
+//    @GetMapping("/login")
+//    public String login() {
+//        return "login";
+//    }
 
     /**
      * http://localhost:8080/api/login
@@ -24,12 +24,12 @@ public class LoginController {
      * @param password
      * @return
      */
-    @PostMapping("/login")
+    @GetMapping("/login")
     @ResponseBody
     public String login(String username, String password) {
-//        UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+        UsernamePasswordToken token = new UsernamePasswordToken(username, password);
         // 获取Subject对象
-        UsernamePasswordToken token = new UsernamePasswordToken(username, password, true);
+//        UsernamePasswordToken token = new UsernamePasswordToken(username, password, true);
         Subject subject = SecurityUtils.getSubject();
         try {
             // 执行登录

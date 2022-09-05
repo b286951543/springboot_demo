@@ -42,7 +42,7 @@ public class UserMock {
         if(username.equals("admin")) {
             return "p:admin";
         }else {
-            return "p:user:1234";
+            return "p:admin";
         }
     }
 
