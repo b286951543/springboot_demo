@@ -86,15 +86,10 @@ public class WebLogFilter {
         List<Object> argList = new ArrayList<>();
         Parameter[] parameters = method.getParameters();
         for (int i = 0; i < parameters.length; i++) {
-            //将RequestBody注解修饰的参数作为请求参数
-            RequestBody requestBody = parameters[i].getAnnotation(RequestBody.class);
-            if (requestBody != null) {
+            RequestParam requestParam;
+            if (parameters[i].getAnnotation(RequestBody.class) != null) { //将RequestBody注解修饰的参数作为请求参数
                 argList.add(args[i]);
-                continue;
-            }
-            //将RequestParam注解修饰的参数作为请求参数
-            RequestParam requestParam = parameters[i].getAnnotation(RequestParam.class);
-            if (requestParam != null) {
+            }else if ((requestParam = parameters[i].getAnnotation(RequestParam.class)) != null) { //将RequestParam注解修饰的参数作为请求参数
                 Map<String, Object> map = new HashMap<>();
                 String key = parameters[i].getName();
                 if (!StringUtils.isEmpty(requestParam.value())) {
@@ -102,7 +97,10 @@ public class WebLogFilter {
                 }
                 map.put(key, args[i]);
                 argList.add(map);
-                continue;
+            }else { // 处理没有带注解的参数
+                Map<String, Object> map = new HashMap<>();
+                map.put(parameters[i].getName(), args[i]);
+                argList.add(map);
             }
         }
         if (argList.size() == 0) {

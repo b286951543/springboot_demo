@@ -2,10 +2,15 @@ package com.example.demo.Shiro;
 
 import com.example.demo.mock.UserMock;
 import com.example.demo.model.User;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class CustomRealm extends AuthorizingRealm {
 
@@ -14,7 +19,22 @@ public class CustomRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principal) {
-        return null;
+        User user = (User) SecurityUtils.getSubject().getPrincipal();
+        String userName = user.getUsername();
+        SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
+
+        // 获取用户角色
+        Set<String> roleSet = new HashSet<>();
+        String role = UserMock.getRole(userName);
+        roleSet.add(role);
+        simpleAuthorizationInfo.setRoles(roleSet);
+
+        // 获取用户权限
+        String permission = UserMock.getPermission(userName);
+        Set<String> permissionSet = new HashSet<String>();
+        permissionSet.add(permission);
+        simpleAuthorizationInfo.setStringPermissions(permissionSet);
+        return simpleAuthorizationInfo;
     }
 
     /**

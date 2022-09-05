@@ -27,13 +27,23 @@ public class UserMock {
             user.setUsername("admin");
             user.setPassword("123");
             user.setRole("admin");
+            user.setId(1);
         }else {
             user.setUsername("admin1");
             user.setPassword("456");
             user.setRole("user");
+            user.setId(2);
         }
         user.setState("1");
         return user;
+    }
+
+    public static String getPermission(String username){
+        if(username.equals("admin")) {
+            return "p:admin";
+        }else {
+            return "p:user:1234";
+        }
     }
 
 }
