@@ -3,6 +3,7 @@ package com.example.demo.config;
 import cn.hutool.core.codec.Base64;
 import com.example.demo.Shiro.CustomRealm;
 //import com.example.demo.session.ShiroSessionListener;
+import com.example.demo.filter.JwtFilter;
 import com.example.demo.session.ShiroSessionListener;
 import org.apache.shiro.session.SessionListener;
 import org.apache.shiro.session.mgt.SessionManager;
@@ -19,27 +20,52 @@ import org.crazycake.shiro.RedisCacheManager;
 import org.crazycake.shiro.RedisManager;
 //import org.crazycake.shiro.RedisSessionDAO;
 import org.crazycake.shiro.RedisSessionDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.servlet.Filter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 // 鉴权框架 Shiro 配置
 @Configuration
 public class ShiroConfig {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Value("${spring.redis.host}")
+    private String redisHost;
+
+    @Value("${spring.redis.port}")
+    private Integer redisPort;
+
+    private static final Integer expireAt = 1800;
+
+    private static final Integer timeout = 3000;
+
+    @Value("${spring.redis.password}")
+    private String redisPassword;
+
     @Bean
     public ShiroFilterFactoryBean shiroFilterFactoryBean(SecurityManager securityManager) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         // 设置securityManager
-        shiroFilterFactoryBean.setSecurityManager((SecurityManager) securityManager);
+        shiroFilterFactoryBean.setSecurityManager(securityManager);
         // 登录的url
         shiroFilterFactoryBean.setLoginUrl("/login");
         // 登录成功后跳转的url
         shiroFilterFactoryBean.setSuccessUrl("/index");
         // 未授权url
         shiroFilterFactoryBean.setUnauthorizedUrl("/403");
+
+        // 添加 jwt 过滤器
+        LinkedHashMap<String, Filter> filters = new LinkedHashMap<>();
+        filters.put("jwt", new JwtFilter());
+        shiroFilterFactoryBean.setFilters(filters);
 
         LinkedHashMap<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
 
@@ -68,6 +94,7 @@ public class ShiroConfig {
         // 表示该 uri 可以匿名访问
 //        filterChainDefinitionMap.put("/", "anon");
 //        filterChainDefinitionMap.put("/index", "anon");
+//        filterChainDefinitionMap.put("/login", "anon");
 
         // 除上以外所有url都必须认证通过才可以访问，未通过认证自动访问LoginUrl
 //        filterChainDefinitionMap.put("/**", "authc"); // 用户认证通过才能访问
@@ -77,7 +104,12 @@ public class ShiroConfig {
 //        filterChainDefinitionMap.put("/index", "perms[\"p:user:index\"]"); // 访问index时，需要 p:user:index 权限，校验不通过则跳到403
 //        filterChainDefinitionMap.put("/**", "user"); // user指的是用户认证通过或者配置了Remember Me记住用户登录状态后可访问
 
+        // 所有请求都要经过 jwt过滤器
+        filterChainDefinitionMap.put("/**", "jwt");
+
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
+        logger.warn("Shiro jwt 拦截器工厂类注入成功");
+
         return shiroFilterFactoryBean;
     }
 
@@ -85,13 +117,15 @@ public class ShiroConfig {
     public DefaultWebSecurityManager securityManager(){
         // 配置SecurityManager，并注入shiroRealm
         DefaultWebSecurityManager securityManager =  new DefaultWebSecurityManager();
+
+        // 设置realm
         securityManager.setRealm(shiroRealm());
 
         // 添加rememberManager
-//        securityManager.setRememberMeManager(rememberMeManager());
+        securityManager.setRememberMeManager(rememberMeManager());
 
         // 添加缓存
-//        securityManager.setCacheManager(cacheManager());
+        securityManager.setCacheManager(cacheManager());
 
         // 注入session manager
         securityManager.setSessionManager(sessionManager());
@@ -164,6 +198,11 @@ public class ShiroConfig {
     // 缓存
     public RedisManager redisManager() {
         RedisManager redisManager = new RedisManager();
+        redisManager.setHost(redisHost);
+        redisManager.setPort(redisPort);
+        redisManager.setPassword(redisPassword);
+        redisManager.setExpire(expireAt);
+        redisManager.setTimeout(timeout);
         return redisManager;
     }
     public RedisCacheManager cacheManager() {
@@ -181,21 +220,25 @@ public class ShiroConfig {
     }
 
     @Bean
+    public SimpleCookie sessionIdCookie(){
+        SimpleCookie cookie = new SimpleCookie("X-Token");
+        cookie.setMaxAge(-1); // 无有效期
+        cookie.setPath("/");
+        cookie.setHttpOnly(false);
+        return cookie;
+    }
+
+    @Bean
     public SessionManager sessionManager() {
         DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
         Collection<SessionListener> listeners = new ArrayList<SessionListener>();
         listeners.add(new ShiroSessionListener());
+
+        // 会把sessionId 存入cookie里面
+        sessionManager.setSessionIdCookie(sessionIdCookie());
+        sessionManager.setSessionIdCookieEnabled(true);
         sessionManager.setSessionListeners(listeners);
         sessionManager.setSessionDAO(sessionDAO());
-
-        //设置session过期时间
-        sessionManager.setGlobalSessionTimeout(60 * 60 * 1000);
-        //定期验证session
-        sessionManager.setSessionValidationSchedulerEnabled(true);
-        //删除无效session
-        sessionManager.setDeleteInvalidSessions(true);
-        // 去掉shiro登录时url里的JSESSIONID
-        sessionManager.setSessionIdUrlRewritingEnabled(false);
         return sessionManager;
     }
 }

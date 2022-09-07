@@ -4,6 +4,14 @@ import com.example.demo.model.User;
 
 public class UserMock {
 
+    public static String getUserName(String userId) {
+        if(userId.equals("1")) {
+            return "admin";
+        }else {
+            return "user";
+        }
+    }
+
     public static String getPassword(String username) {
         System.out.println("用户名:   " + username);
         if(username.equals("admin")) {
@@ -15,6 +23,22 @@ public class UserMock {
 
     public static String getRole(String username) {
         if(username.equals("admin")) {
+            return "admin";
+        }else {
+            return "user";
+        }
+    }
+
+    public static Integer getId(String username) {
+        if(username.equals("admin")) {
+            return 1;
+        }else {
+            return 2;
+        }
+    }
+
+    public static String getRoleById(String userId){
+        if(userId.equals("1")) {
             return "admin";
         }else {
             return "user";

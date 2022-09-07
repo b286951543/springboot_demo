@@ -16,13 +16,13 @@ public class ExceptionController {
         return "您当前没有权限访问~ 请联系管理员";
     }
 
-    @ResponseBody
-    @ExceptionHandler(Exception.class)
-    // 自定义浏览器返回状态码
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public String error(Exception e) {
-        return e.getMessage();
-    }
+//    @ResponseBody
+//    @ExceptionHandler(Exception.class)
+//    // 自定义浏览器返回状态码
+//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+//    public String error(Exception e) {
+//        return e.getMessage();
+//    }
 
 
 

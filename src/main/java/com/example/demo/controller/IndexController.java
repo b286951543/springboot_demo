@@ -1,7 +1,9 @@
 package com.example.demo.controller;
 
+import com.example.demo.mock.UserMock;
 import com.example.demo.model.User;
 import com.example.demo.model.UserOnline;
+import com.example.demo.util.JwtUtil;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.session.Session;
@@ -46,16 +48,29 @@ public class IndexController {
         Collection<Session> sessions = sessionDAO.getActiveSessions();
         for (Session session : sessions) {
             UserOnline userOnline = new UserOnline();
-            User user = new User();
+
             SimplePrincipalCollection principalCollection;
             if (session.getAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY) == null) {
                 continue;
             } else {
                 principalCollection = (SimplePrincipalCollection) session
                         .getAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY);
-                user = (User) principalCollection.getPrimaryPrincipal();
-                userOnline.setUsername(user.getUsername());
-                userOnline.setUserId(user.getId().toString());
+
+                Object obj = principalCollection.getPrimaryPrincipal();
+                if (obj instanceof User){
+                    User user = (User) principalCollection.getPrimaryPrincipal();
+                    userOnline.setUsername(user.getUsername());
+                    userOnline.setUserId(user.getId().toString());
+                }else if (obj instanceof String){
+                    // jwt
+                    String token = (String) principalCollection.getPrimaryPrincipal();
+                    System.out.println(token);
+                    System.out.println(session.getId());
+                    String userId = JwtUtil.getUserId(token);
+                    String userName = UserMock.getUserName(userId);
+                    userOnline.setUsername(userName);
+                    userOnline.setUserId(userId);
+                }
             }
             userOnline.setSessionId((String) session.getId());
             userOnline.setHost(session.getHost());
