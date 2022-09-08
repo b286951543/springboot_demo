@@ -1,43 +1,8 @@
-server:
-  port: 8080 # 设置应用端口，默认是8080
-  tomcat:
-    max-threads: 800 # 设置最大线程数
-    uri-encoding: UTF-8
-  servlet:
-    # 这个是添加请求前缀
-    context-path: /api
-
-
-
 spring:
-  application:
-    name: app
-  datasource: # 如果出现Public Key Retrieval is not allowed的报错，添加一下url配置 &allowPublicKeyRetrieval=true
-    url: jdbc:mysql://localhost:3307/test?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false
-    username: root
-    password: 123456 # 替换成自己的密码
-  redis:
-    host: localhost # Redis服务器地址
-    database: 1 # Redis数据库索引（默认为0）redis默认有16个库
-    port: 6379 # Redis服务器连接端口
-    password: # Redis服务器连接密码（默认为空）
+  profiles:
+    # 使用pom.xml里的 profile.active 属性，或者通过命令行获取
+    active: @profile.active@
 
 mybatis:
   mapper-locations:
     - classpath:mapper/*.xml # 这是我们定义的xml路径,要在resources下新建mapper目录
-#  configuration:
-#    cache-enabled: true
-#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # 显示sql
-
-logging:
-  level:
-    com:
-      example:
-        demo:
-          mapper: debug # 显示sql
-
-
-
-app:
-  name: ${spring.application.name}
-  version: "1.0"

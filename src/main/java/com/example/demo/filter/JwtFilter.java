@@ -27,7 +27,7 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) throws UnauthorizedException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 
-        if (((HttpServletRequest) request).getRequestURI().equals("/api/login")){
+        if (((HttpServletRequest) request).getServletPath().equals("/login")){
             return true;
         }
         // 这里大家可以处理白名单逻辑，这里就不实现了 比如 /login 我们需要放行
