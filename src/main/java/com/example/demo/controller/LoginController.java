@@ -20,6 +20,9 @@ public class LoginController {
 
     /**
      * http://localhost:8080/api/login
+     *
+     * http://localhost:8080/dev-api/login?username=admin2&password=456
+     *
      * <p>
      * 使用 form-data 来传递参数
      *
