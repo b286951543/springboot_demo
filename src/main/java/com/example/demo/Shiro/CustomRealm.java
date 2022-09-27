@@ -56,6 +56,31 @@ public class CustomRealm extends AuthorizingRealm {
         permissionSet.add(permission);
         simpleAuthorizationInfo.setStringPermissions(permissionSet);
         return simpleAuthorizationInfo;
+
+
+
+//        SysUser user = ShiroUtils.getSysUser();
+//        // 角色列表
+//        Set<String> roles = new HashSet<String>();
+//        // 功能列表
+//        Set<String> menus = new HashSet<String>();
+//        SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
+//        // 管理员拥有所有权限
+//        if (user.isAdmin())
+//        {
+//            info.addRole("admin");
+//            info.addStringPermission("*:*:*");
+//        }
+//        else
+//        {
+//            roles = roleService.selectRoleKeys(user.getUserId());
+//            menus = menuService.selectPermsByUserId(user.getUserId());
+//            // 角色加入AuthorizationInfo认证对象
+//            info.setRoles(roles);
+//            // 权限加入AuthorizationInfo认证对象
+//            info.setStringPermissions(menus);
+//        }
+//        return info;
     }
 
     /**

@@ -31,6 +31,7 @@ public class IndexController {
 //    @RequiresUser // 需要登录
 //    @RequiresGuest // 需要游客身份
 //    @RequiresRoles(value={"admin", "user"}, logical= Logical.OR) // 当前需要的角色
+    // 参考项目：https://gitee.com/shenzhanwang/Spring-activiti
     @RequiresPermissions("p:user:index") // 表示当前需要的权限，但如果当前拥有 p:user 权限，也能访问该url
     @RequestMapping("/index")
     public String index(Model model) {
